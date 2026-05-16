@@ -1,30 +1,39 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"strings"
 	"time"
-
-	"periph.io/x/conn/v3/gpio"
-	"periph.io/x/host/v3"
-	"periph.io/x/host/v3/rpi"
 )
 
+func temperatura() (string, error) {
+	podaci, err := os.ReadFile("/sys/bus/w1/devices/28-062542df2985/w1_slave")
+	if err != nil {
+		return "0", err
+	}
+
+	s := string(podaci)
+
+	if !strings.Contains(s, "YES") {
+		return "0", fmt.Errorf("CRC fail")
+	}
+
+	temp := strings.TrimSpace((strings.Split(s, "t="))[1])
+
+	return temp, nil
+}
 func main() {
-	if _, err := host.Init(); err != nil {
-		log.Fatal(err)
+
+	for {
+		temp, err := temperatura()
+		if err != nil {
+			log.Println("Greška", err)
+		} else {
+			fmt.Println(temp)
+		}
+
+		time.Sleep(30 * time.Second)
 	}
-
-	p := rpi.P1_37
-
-	if err := p.Out(gpio.High); err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("Pin 37 ON")
-
-	time.Sleep(5 * time.Second)
-
-	p.Out(gpio.Low)
-
-	log.Println("Pin 37 OFF")
 }
