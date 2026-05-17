@@ -17,7 +17,7 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
-type Stanje struct {
+type State struct {
 	temp  float64
 	point float64
 }
@@ -48,11 +48,13 @@ func temperature() (float64, error) {
 }
 
 func main() {
-	var stanje Stanje
+	var state State
 	var m sync.Mutex
-	stanje.point = -273.0
-	stanje.temp = -273.0
-	stanjeCh := make(chan Stanje)
+	var heating bool
+	const hysteresis = 0.5
+	state.point = -273.0
+	state.temp = -273.0
+	stateCh := make(chan State)
 
 	if _, err := host.Init(); err != nil {
 		log.Fatal(err)
@@ -100,31 +102,31 @@ func main() {
 		point, _ := strconv.ParseFloat(point_a, 64)
 		fmt.Println("Setpoint:", point)
 		m.Lock()
-		stanje.point = point
+		state.point = point
 		m.Unlock()
-		stanjeCh <- Stanje{}
+		stateCh <- State{}
 
 	})
 
 	subToken.Wait()
 	go func() {
-		for range stanjeCh {
+		for range stateCh {
 
 			m.Lock()
-			t := stanje.temp
-			p := stanje.point
+			t := state.temp
+			p := state.point
 			m.Unlock()
 
-			if t < p {
+			if !heating && t < (p-hysteresis) {
+				heating = true
 				fmt.Println("Grijanje ON")
-				if err := pin.Out(gpio.High); err != nil {
-					log.Println("Greška:", err)
-				}
-			} else {
+				pin.Out(gpio.High)
+			}
+
+			if heating && t > (p+hysteresis) {
+				heating = false
 				fmt.Println("Grijanje OFF")
-				if err := pin.Out(gpio.Low); err != nil {
-					log.Println("Greška:", err)
-				}
+				pin.Out(gpio.Low)
 			}
 		}
 	}()
@@ -135,13 +137,13 @@ func main() {
 				log.Println("Greška:", err)
 			} else {
 				fmt.Println("Temp:", temp_check)
-				if temp_check != stanje.temp {
+				if temp_check != state.temp {
 					fmt.Println("Nova temp:", temp_check)
 					m.Lock()
-					stanje.temp = temp_check
+					state.temp = temp_check
 					m.Unlock()
-					stanjeCh <- Stanje{}
-					msg := fmt.Sprintf("%.1f", stanje.temp)
+					stateCh <- State{}
+					msg := fmt.Sprintf("%.1f", state.temp)
 
 					token := client.Publish(topic, 0, false, msg)
 					token.Wait()
@@ -153,7 +155,7 @@ func main() {
 
 			}
 
-			time.Sleep(3 * time.Second)
+			time.Sleep(5 * time.Second)
 		}
 	}()
 	select {}
