@@ -36,16 +36,18 @@ func temperature() (float64, error) {
 
 	return temp, nil
 }
-func on_off(temp float64, point float64) {
-	if temp < point {
-		fmt.Println("Grijanje upaljeno")
-	} else if temp > point {
-		fmt.Println("Grijanje ugašeno")
-	}
+
+type Stanje struct {
+	temp  float64
+	point float64
 }
+
 func main() {
-	point := -273.0
-	temp := -273.0
+	var stanje Stanje
+	stanje.temp = -273
+	stanje.point = -273
+	stanje_ch := make(chan Stanje)
+
 	broker := "tcp://server.apps.dj:1883"
 	topic := "rpi/temperature"
 
@@ -74,9 +76,10 @@ func main() {
 	subToken := client.Subscribe("rpi/setpoint", 0, func(client mqtt.Client, msg mqtt.Message) {
 		point_a := string(msg.Payload())
 
-		point, _ = strconv.ParseFloat(point_a, 64)
+		point, _ := strconv.ParseFloat(point_a, 64)
 		fmt.Println("Setpoint:", point)
-		on_off(temp, point)
+		stanje.point = point
+		stanje_ch <- Stanje{}
 	})
 
 	subToken.Wait()
@@ -95,24 +98,38 @@ func main() {
 		}
 	*/
 	go func() {
+
+		for range stanje_ch {
+
+			if stanje.temp < stanje.point {
+				fmt.Println("Grijanje ON")
+			} else {
+				fmt.Println("Grijanje OFF")
+			}
+
+		}
+	}()
+
+	go func() {
 		for {
 			temp_check, err := temperature()
 			if err != nil {
 				log.Println("Greška:", err)
 			} else {
 				fmt.Println("Temp:", temp_check)
-				if temp_check != temp {
-					fmt.Println("Nova temp:", temp_check)
-					temp = temp_check
-					on_off(temp, point)
-				}
-				msg := fmt.Sprintf("%.1f", temp)
+				if stanje.temp != temp_check {
+					stanje.temp = temp_check
+					stanje_ch <- Stanje{}
+					fmt.Println("Temp se promijenila")
+					msg := fmt.Sprintf("%.1f", temp_check)
 
-				token := client.Publish(topic, 0, false, msg)
-				token.Wait()
+					token := client.Publish(topic, 0, false, msg)
+					token.Wait()
 
-				if token.Error() != nil {
-					log.Println("Publish error:", token.Error())
+					if token.Error() != nil {
+						log.Println("Publish error:", token.Error())
+					}
+
 				}
 			}
 
