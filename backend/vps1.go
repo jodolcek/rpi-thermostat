@@ -35,13 +35,27 @@ func main() {
 
 	token.Wait()
 
-	subToken := client.Subscribe("rpi/temperature", 0, func(client mqtt.Client, msg mqtt.Message) {
+	tmp := client.Subscribe("rpi/temperature", 0, func(client mqtt.Client, msg mqtt.Message) {
 		temp_a := string(msg.Payload())
 
 		temp, _ := strconv.ParseFloat(temp_a, 64)
 		fmt.Println("Temperatura:", temp)
 
 	})
-	subToken.Wait()
+	tmp.Wait()
+	h := client.Subscribe("rpi/heating", 0, func(client mqtt.Client, msg mqtt.Message) {
+		heating := string(msg.Payload())
+
+		fmt.Println("Grijanje:", heating)
+
+	})
+	h.Wait()
+	point := client.Subscribe("rpi/setpoint", 0, func(client mqtt.Client, msg mqtt.Message) {
+		setpoint := string(msg.Payload())
+
+		fmt.Println("Postavljena temperatura:", setpoint)
+
+	})
+	point.Wait()
 	select {}
 }
