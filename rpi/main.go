@@ -95,7 +95,20 @@ func main() {
 	token := client.Connect()
 
 	token.Wait()
+	msg := fmt.Sprintf("%.1f", state.point)
 
+	point := client.Publish("rpi/setpoint", 0, true, msg)
+	point.Wait()
+
+	if point.Error() != nil {
+		log.Println("Publish error:", token.Error())
+	}
+	h := client.Publish(topic2, 0, true, "off")
+	h.Wait()
+
+	if h.Error() != nil {
+		log.Println("Publish error:", token.Error())
+	}
 	subToken := client.Subscribe("rpi/setpoint", 0, func(client mqtt.Client, msg mqtt.Message) {
 		point_a := string(msg.Payload())
 
@@ -144,6 +157,7 @@ func main() {
 					log.Println("Publish error:", token.Error())
 				}
 			}
+
 		}
 	}()
 	go func() {
