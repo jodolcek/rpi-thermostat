@@ -73,7 +73,7 @@ func main() {
 	}
 	broker := "tcp://server.apps.dj:1883"
 	topic := "rpi/temperature"
-
+	topic2 := "rpi/heating"
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(broker)
 	opts.SetClientID("rpi-sensor")
@@ -121,12 +121,28 @@ func main() {
 				heating = true
 				fmt.Println("Grijanje ON")
 				pin.Out(gpio.High)
+				msg := "on"
+
+				token := client.Publish(topic2, 0, true, msg)
+				token.Wait()
+
+				if token.Error() != nil {
+					log.Println("Publish error:", token.Error())
+				}
 			}
 
 			if heating && t > (p+hysteresis) {
 				heating = false
 				fmt.Println("Grijanje OFF")
 				pin.Out(gpio.Low)
+				msg := "off"
+
+				token := client.Publish(topic2, 0, true, msg)
+				token.Wait()
+
+				if token.Error() != nil {
+					log.Println("Publish error:", token.Error())
+				}
 			}
 		}
 	}()
@@ -145,7 +161,7 @@ func main() {
 					stateCh <- State{}
 					msg := fmt.Sprintf("%.1f", state.temp)
 
-					token := client.Publish(topic, 0, false, msg)
+					token := client.Publish(topic, 0, true, msg)
 					token.Wait()
 
 					if token.Error() != nil {
