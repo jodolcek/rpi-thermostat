@@ -35,7 +35,7 @@ func main() {
 
 	token.Wait()
 
-	subToken := client.Subscribe("rpi/setpoint", 0, func(client mqtt.Client, msg mqtt.Message) {
+	subToken := client.Subscribe("rpi/temperature", 0, func(client mqtt.Client, msg mqtt.Message) {
 		temp_a := string(msg.Payload())
 
 		temp, _ := strconv.ParseFloat(temp_a, 64)
