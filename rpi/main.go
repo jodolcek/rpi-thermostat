@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+
 	"os"
 	"strconv"
 	"strings"
@@ -42,8 +43,7 @@ func temperature() (float64, error) {
 	}
 
 	temp_b := temp_a / 1000.0
-	temp := math.Round(temp_b*2) / 2
-
+	temp := math.Round(temp_b*10) / 10
 	return temp, nil
 }
 
