@@ -55,6 +55,13 @@ public class WebSocket {
             @Override
             public void onFailure(okhttp3.WebSocket webSocket, Throwable t, Response response) {
                 Log.e("WS", "Error", t);
+                try {
+                    Thread.sleep(5000); // čekaj 5 sekundi
+                } catch (InterruptedException e) {
+                    Log.e("WS", "Reconnect interrupted", e);
+                }
+
+                connect();
             }
         });
     }

@@ -95,7 +95,7 @@
         android:layout_below="@id/Controls"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
-        android:text="Grijanje uključeno"
+        android:text="Grijanje isključeno"
         android:textSize="18sp"/>
 
 

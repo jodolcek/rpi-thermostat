@@ -2,7 +2,8 @@ package hr.fipu.termostat;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
+
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -15,7 +16,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-public Informations informations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,18 +26,21 @@ public Informations informations;
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);return insets;
         });
+
         TextView temp, point, heating;
+        Button plus, minus;
+        plus = findViewById(R.id.btnPlus);
+        minus = findViewById(R.id.btnMinus);
 
         temp = findViewById(R.id.CurrentTemp);
         point = findViewById(R.id.SetTempText);
         heating = findViewById(R.id.HeatingStatus);
         WebSocket ws = new WebSocket();
-
         ws.connect();
         ws.setCallback(info -> {
             runOnUiThread(() -> {
-                temp.setText(String.valueOf(info.getTemperature()));
-                point.setText(String.valueOf(info.getSetPoint()));
+                temp.setText(info.getTemperature() + "°C");
+                point.setText(info.getSetPoint() + "°C");
                 if ("off".equals(info.getHeating())) {
                     heating.setText("Grijanje isključeno");
                     heating.setTextColor(Color.RED);
@@ -48,8 +51,18 @@ public Informations informations;
             });
         });
 
-
+        plus.setOnClickListener(view -> {
+            String text = point.getText().toString().replace("°C", "").trim();
+            float setPoint = Float.parseFloat(text);
+            setPoint += 0.5f;
+            point.setText(setPoint + "°C");
+        });
+        minus.setOnClickListener(view -> {
+            String text = point.getText().toString().replace("°C", "").trim();
+            float setPoint = Float.parseFloat(text);
+            setPoint -= 0.5f;
+            point.setText(setPoint + "°C");
+        });
 
     }
-
 }
