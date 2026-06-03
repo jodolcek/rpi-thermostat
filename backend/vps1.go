@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gorilla/websocket"
+	"github.com/joho/godotenv"
 )
 
 type Informations struct {
@@ -114,6 +116,14 @@ func main() {
 
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(broker)
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No .env")
+	}
+	mqttuser := os.Getenv("mqtt_user")
+	mqttpasswd := os.Getenv("mqtt_passwd")
+	opts.SetUsername(mqttuser)
+	opts.SetPassword(mqttpasswd)
 	opts.SetClientID("backend")
 	opts.SetCleanSession(true)
 
