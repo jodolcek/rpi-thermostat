@@ -16,6 +16,7 @@ import (
 	"periph.io/x/host/v3/rpi"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/joho/godotenv"
 )
 
 type State struct {
@@ -48,12 +49,13 @@ func temperature() (float64, error) {
 }
 
 func main() {
+
 	var state State
 	var m sync.Mutex
 	var heating bool
 	const hysteresis = 0.5
-	state.point = -273.0
-	state.temp = -273.0
+	state.point = 0.0
+	state.temp = 0.0
 	stateCh := make(chan State)
 
 	if _, err := host.Init(); err != nil {
@@ -71,11 +73,19 @@ func main() {
 		log.Println("GPIO error, retry", i, ":", err)
 		time.Sleep(1 * time.Second)
 	}
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No .env")
+	}
+	mqttuser := os.Getenv("mqtt_user")
+	mqttpasswd := os.Getenv("mqtt_passwd")
 	broker := "tcp://server.apps.dj:1883"
 	topic := "rpi/temperature"
 	topic2 := "rpi/heating"
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(broker)
+	opts.SetUsername(mqttuser)
+	opts.SetPassword(mqttpasswd)
 	opts.SetClientID("rpi-sensor")
 	opts.SetCleanSession(true)
 
