@@ -20,7 +20,7 @@
         android:id="@+id/ScInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Postavi automatsko grijanje prema rasporedu"
+        android:text="Postavi automatsko grijanje"
         android:layout_below="@id/ScheduleTitle"
         android:layout_marginTop="4dp"
         android:textSize="14sp"/>

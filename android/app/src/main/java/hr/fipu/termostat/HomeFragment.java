@@ -10,14 +10,15 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 
 public class HomeFragment extends Fragment {
 
     private TextView temp, point, heating;
     private Button plus, minus;
+    private WSViewModel viewModel;
 
-    private WebSocket ws;
     private ApiSetPoint api;
 
     @Override
@@ -33,16 +34,15 @@ public class HomeFragment extends Fragment {
         minus = view.findViewById(R.id.btnMinus);
 
         api = new ApiSetPoint();
-        ws = new WebSocket();
 
-        ws.connect();
+        viewModel = new ViewModelProvider(this).get(WSViewModel.class);
+        viewModel.getInformations().observe(getViewLifecycleOwner(), informations -> {
 
-        ws.setCallback(info -> {
-            requireActivity().runOnUiThread(() -> {
-                temp.setText(info.getTemperature() + "°C");
-                point.setText(info.getSetPoint() + "°C");
 
-                if ("off".equals(info.getHeating())) {
+                temp.setText(informations.getTemperature() + "°C");
+                point.setText(informations.getSetPoint() + "°C");
+
+                if ("off".equals(informations.getHeating())) {
                     heating.setText("Grijanje isključeno");
                     heating.setTextColor(Color.RED);
                 } else {
@@ -50,7 +50,8 @@ public class HomeFragment extends Fragment {
                     heating.setTextColor(Color.GREEN);
                 }
             });
-        });
+        viewModel.connect();
+
 
         plus.setOnClickListener(v -> {
             float setPoint = Float.parseFloat(point.getText().toString().replace("°C","").trim());
