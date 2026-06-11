@@ -18,7 +18,7 @@ public class HomeFragment extends Fragment {
     private Button plus, minus;
 
     private WebSocket ws;
-    private ApiClient api;
+    private ApiSetPoint api;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -32,7 +32,7 @@ public class HomeFragment extends Fragment {
         plus = view.findViewById(R.id.btnPlus);
         minus = view.findViewById(R.id.btnMinus);
 
-        api = new ApiClient();
+        api = new ApiSetPoint();
         ws = new WebSocket();
 
         ws.connect();

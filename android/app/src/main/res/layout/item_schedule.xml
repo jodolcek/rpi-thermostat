@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/ScTime"
+        android:layout_width="wrap_content"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:text="06:00" />
+
+    <TextView
+        android:id="@+id/ScSetpoint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="22°C" />
+
+</LinearLayout>

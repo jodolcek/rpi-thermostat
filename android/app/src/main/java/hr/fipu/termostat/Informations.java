@@ -1,9 +1,9 @@
 package hr.fipu.termostat;
 
 public class Informations {
-    public String Heating;
-    public Float Temperature;
-    public Float SetPoint;
+    private String Heating;
+    private Float Temperature;
+    private Float SetPoint;
     Informations(String heating, float temperature, float setPoint) {
         this.Heating = heating;
         this.Temperature = temperature;
