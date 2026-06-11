@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp">
+
+
+    <TextView
+        android:id="@+id/Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Termostat"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"/>
+
+
+    <TextView
+        android:id="@+id/CurrentTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="--"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        android:textColor="#FF5722"
+        android:layout_below="@id/Title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"/>
+
+    <TextView
+        android:id="@+id/LabelCurrent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trenutna temperatura"
+        android:layout_below="@id/CurrentTemp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"/>
+
+
+    <TextView
+        android:id="@+id/SetLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Željena temperatura"
+        android:textSize="18sp"
+        android:layout_below="@id/LabelCurrent"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"/>
+
+
+    <LinearLayout
+        android:id="@+id/Controls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_below="@id/SetLabel"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp">
+
+
+        <Button
+            android:id="@+id/btnMinus"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="−"
+            android:textSize="24sp"/>
+
+
+        <TextView
+            android:id="@+id/SetTempText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="--"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:layout_marginHorizontal="20dp"/>
+
+        <Button
+            android:id="@+id/btnPlus"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="+"
+            android:textSize="24sp"/>
+    </LinearLayout>
+
+
+
+    <TextView
+        android:id="@+id/HeatingStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Controls"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:text="Grijanje isključeno"
+        android:textSize="18sp"/>
+
+
+</RelativeLayout>

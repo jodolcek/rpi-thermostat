@@ -1,0 +1,66 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+
+    <TextView
+        android:id="@+id/ScheduleTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dnevni raspored grijanja"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_alignParentTop="true"/>
+
+
+    <TextView
+        android:id="@+id/ScInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Postavi automatsko grijanje prema rasporedu"
+        android:layout_below="@id/ScheduleTitle"
+        android:layout_marginTop="4dp"
+        android:textSize="14sp"/>
+
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#DDDDDD"
+        android:layout_below="@id/ScInfo"
+        android:layout_marginTop="12dp"/>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSchedule"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/divider"
+        android:layout_above="@id/ScAdd"
+        android:layout_marginTop="12dp"/>
+
+    <TextView
+        android:id="@+id/ScEmpty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Raspored prazan"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:textSize="16sp"
+        android:textColor="#888888"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/ScAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:contentDescription="Dodaj"
+        app:srcCompat="@android:drawable/ic_input_add"
+        android:layout_margin="16dp"/>
+
+</RelativeLayout>
