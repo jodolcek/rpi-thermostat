@@ -10,7 +10,10 @@ import (
 	"sync"
 	"time"
 
+	"database/sql"
+
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
 )
@@ -19,6 +22,11 @@ type Informations struct {
 	Temperature float64 `json:"temperature"`
 	Heating     string  `json:"heating"`
 	Setpoint    float64 `json:"setpoint"`
+}
+
+type ScheduleItem struct {
+	Time     string  `json:"time"`
+	Setpoint float64 `json:"setpoint"`
 }
 
 var upgrader = websocket.Upgrader{
@@ -30,6 +38,8 @@ var upgrader = websocket.Upgrader{
 var mqttClient mqtt.Client
 
 var clients = make(map[*websocket.Conn]bool)
+
+var db *sql.DB
 
 var mu sync.Mutex
 
@@ -109,6 +119,32 @@ func broadcastInformations() {
 	}
 
 }
+func getScheduleHandler(w http.ResponseWriter, r *http.Request) {
+
+	rows, err := db.Query("SELECT DATE_FORMAT(time, '%H:%i') AS time, setpoint FROM schedule ORDER BY time")
+	if err != nil {
+		log.Println("DB query error:", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var list []ScheduleItem
+
+	for rows.Next() {
+		var item ScheduleItem
+
+		err := rows.Scan(&item.Time, &item.Setpoint)
+		if err != nil {
+			continue
+		}
+
+		list = append(list, item)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(list)
+}
 
 func main() {
 
@@ -122,6 +158,10 @@ func main() {
 	}
 	mqttuser := os.Getenv("mqtt_user")
 	mqttpasswd := os.Getenv("mqtt_passwd")
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASS")
+	dbName := os.Getenv("DB_NAME")
+
 	opts.SetUsername(mqttuser)
 	opts.SetPassword(mqttpasswd)
 	opts.SetClientID("backend")
@@ -175,8 +215,16 @@ func main() {
 		broadcastInformations()
 	})
 	point.Wait()
+
+	dbConn, err := sql.Open("mysql", dbUser+":"+dbPass+"@tcp(localhost:3306)/"+dbName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	db = dbConn
 	http.HandleFunc("/ws", handleWS)
 	http.HandleFunc("/setpoint", setpointHandler)
+	http.HandleFunc("/schedule", getScheduleHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
